@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Crime Prediction Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 20px;
+            width: 400px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 0 40px rgba(0,0,0,0.4);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        input {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 10px;
+            border: none;
+            background: #ff416c;
+            background: linear-gradient(to right, #ff4b2b, #ff416c);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255,65,108,0.7);
+        }
+
+        #result {
+            margin-top: 20px;
+            opacity: 0;
+            transition: 0.5s ease;
+        }
+
+        .show {
+            opacity: 1 !important;
+        }
+
+        .crime-value {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h2>🚔 AI Crime Prediction</h2>
+
+        <input type="text" id="state" placeholder="Enter State (e.g. Delhi)">
+        <input type="number" id="year" placeholder="Enter Year">
+
+        <button onclick="getPrediction()">Predict Crime</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function getPrediction() {
+            const state = document.getElementById("state").value;
+            const year = document.getElementById("year").value;
+
+            if (!state || !year) {
+                alert("Please enter both State and Year");
+                return;
+            }
+
+            const response = await fetch("/predict", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    state: state,
+                    year: year
+                })
+            });
+
+            const data = await response.json();
+
+            const resultDiv = document.getElementById("result");
+
+            resultDiv.innerHTML = `
+                <h3>Prediction Result</h3>
+                <p><strong>State:</strong> ${data.state}</p>
+                <p><strong>Year:</strong> ${data.year}</p>
+                <div class="crime-value">Total Crimes: ${data.total_predicted}</div>
+                <p>Risk Level: ${data.color}</p>
+            `;
+
+            resultDiv.classList.add("show");
+        }
+    </script>
+
+</body>
+</html>
